@@ -12,6 +12,4 @@
 
 @property (nonatomic) UIImageView *transitionImageView;
 
-- (void)animationStopped;
-
 @end

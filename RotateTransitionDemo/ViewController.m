@@ -21,6 +21,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+
+    [self.view setBackgroundColor:[UIColor lightGrayColor]];
     _imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
     [_imageView setImage:[UIImage imageNamed:@"avatar"]];
     [self.view addSubview:_imageView];
@@ -37,7 +39,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
+
     if (_animationImageView && _animationImageView.superview) {
         [_animationImageView setHidden:NO];
 
@@ -47,11 +49,10 @@
 
 - (void)openView:(id)sender {
     if ( !(_animationImageView && _animationImageView.superview)) {
+        [self openAnimation];
+
         _imageViewController = [[FullscreenImageViewController alloc] init];
         _imageViewController.transitionImageView = _imageView;
-        [self presentViewController:_imageViewController animated:NO completion:nil];
-        
-        [self openAnimation];
     }
 }
 
@@ -124,8 +125,16 @@
         [_imageView setHidden:NO];
     } else if ([[anim valueForKey:@"animationType"] isEqual:@"open"]) {
         [_animationImageView setHidden:YES];
-        [_imageViewController animationStopped];
+        [self presentViewController:_imageViewController animated:NO completion:nil];
     }
+}
+
+- (NSUInteger)supportedInterfaceOrientations {
+    return UIInterfaceOrientationPortrait;
+}
+
+- (BOOL)shouldAutorotate {
+    return NO;
 }
 
 @end

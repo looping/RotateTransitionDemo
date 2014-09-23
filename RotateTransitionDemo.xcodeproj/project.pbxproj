@@ -422,6 +422,7 @@
 				6E2584E519D0FED000D0C19F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		6E2584E619D0FED000D0C19F /* Build configuration list for PBXNativeTarget "RotateTransitionDemoTests" */ = {
 			isa = XCConfigurationList;
@@ -430,6 +431,7 @@
 				6E2584E819D0FED000D0C19F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

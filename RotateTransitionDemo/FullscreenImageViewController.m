@@ -18,6 +18,8 @@
 @implementation FullscreenImageViewController
 
 - (void)viewDidLoad {
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+
     [self.view setBackgroundColor:[UIColor whiteColor]];
     CGRect frame = self.view.bounds;
     CGFloat tmp = frame.size.width;
@@ -27,31 +29,32 @@
     _imageView = [[UIImageView alloc] initWithFrame:frame];
     [_imageView setImage:_transitionImageView.image];
     
-    [_imageView setHidden:YES];
-    
     [self.view addSubview:_imageView];
     
-    _button = [[UIButton alloc] initWithFrame:CGRectMake(-25, self.view.frame.size.height - 100, 100, 40)];
-    [_button setHidden:YES];
+    _button = [[UIButton alloc] initWithFrame:CGRectMake(self.view.frame.size.height - 120, self.view.frame.size.width - 50, 100, 40)];
+
     [self.view addSubview:_button];
     [_button setBackgroundColor:[UIColor redColor]];
     [_button setTitle:@"关闭" forState:UIControlStateNormal];
     [_button addTarget:self action:@selector(dismiss) forControlEvents:UIControlEventTouchUpInside];
-    
-    _imageView.layer.position = self.view.layer.position;
-    CGAffineTransform rotation = CGAffineTransformMakeRotation(M_PI_2);
-    _imageView.layer.transform = CATransform3DIdentity;
-    [_imageView setTransform:rotation];
-    [_button setTransform:rotation];
-}
-
-- (void)animationStopped {
-    [_imageView setHidden:NO];
-    [_button setHidden:NO];
 }
 
 - (void)dismiss {
-    [self dismissViewControllerAnimated:NO completion:nil];
+    [self dismissViewControllerAnimated:NO completion:^{
+        [[UIApplication sharedApplication] setStatusBarOrientation:UIInterfaceOrientationPortrait animated:NO];
+    }];
+}
+
+- (NSUInteger)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskLandscape;
+}
+
+- (BOOL)shouldAutorotate {
+    return NO;
+}
+
+- (BOOL)prefersStatusBarHidden {
+    return NO;
 }
 
 @end
