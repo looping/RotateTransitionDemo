@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "FullscreenImageViewController.h"
+#import <POP.h>
 
 @interface ViewController ()
 
@@ -61,65 +62,33 @@
     }
 }
 
-- (void)openAnimation {
-    CABasicAnimation *center = [CABasicAnimation animationWithKeyPath:@"position"];
-    center.fromValue = [NSValue valueWithCGPoint:_imageView.layer.position];
-    center.toValue = [NSValue valueWithCGPoint:self.view.center];
+- (POPBasicAnimation *)basicAnimationToValue:(id)value duration:(CGFloat)duration propertyName:(NSString *)name {
+    POPBasicAnimation *animation = [POPBasicAnimation animationWithPropertyNamed:name];
+    animation.toValue = value;
+    animation.duration = duration;
+    animation.removedOnCompletion = YES;
     
-    CABasicAnimation *scale = [CABasicAnimation animationWithKeyPath:@"bounds"];
-    scale.fromValue = [NSValue valueWithCGRect:_imageView.layer.bounds];
-    
-    CABasicAnimation *rotate = [CABasicAnimation animationWithKeyPath:@"transform"];
-    rotate.fromValue = [NSValue valueWithCATransform3D:_imageView.layer.transform];
+    return animation;
+}
 
-    scale.toValue = [NSValue valueWithCGRect:CGRectMake(0, 0, self.view.bounds.size.height, self.view.bounds.size.width)];
+- (void)openAnimation {
+    [_imageView pop_addAnimation:[self basicAnimationToValue:[NSValue valueWithCGPoint:self.view.center] duration:0.5 propertyName:kPOPViewCenter] forKey:@"positionAnimation"];
     
-    rotate.toValue = [NSValue valueWithCATransform3D:CATransform3DRotate(_imageView.layer.transform, M_PI_2, 0, 0, 1)];
+    [_imageView pop_addAnimation:[self basicAnimationToValue:[NSValue valueWithCGRect:CGRectMake(0, 0, self.view.bounds.size.height, self.view.bounds.size.width)] duration:0.5 propertyName:kPOPViewBounds] forKey:@"boundsAnimation"];
+
+    [_imageView.layer pop_addAnimation:[self basicAnimationToValue:@(M_PI_2) duration:0.5 propertyName:kPOPLayerRotation] forKey:@"transformAnimation"];
     
-    CAAnimationGroup *group = [CAAnimationGroup animation];
-    group.duration = 0.5;
-    group.delegate = self;
-    group.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-    group.animations = @[scale,rotate,center];
-    [group setValue:@"open" forKey:@"animationType"];
-    
-    _imageView.layer.position = [center.toValue CGPointValue];
-    _imageView.layer.bounds = [scale.toValue CGRectValue];
-    _imageView.layer.transform = [rotate.toValue CATransform3DValue];
-    [_imageView.layer addAnimation:group forKey:nil];
+    [[_imageView.layer pop_animationForKey:@"transformAnimation"] setCompletionBlock:^{
+        [self presentViewController:_imageViewController animated:NO completion:nil];
+    }];
 }
 
 - (void)closeAnimation {
-    CABasicAnimation *center = [CABasicAnimation animationWithKeyPath:@"position"];
-    center.fromValue = [NSValue valueWithCGPoint:_imageView.layer.position];
-    center.toValue = [NSValue valueWithCGPoint:CGPointMake(_bakFrame.origin.x + _bakFrame.size.width / 2, _bakFrame.origin.y + _bakFrame.size.height / 2)];
+    [_imageView pop_addAnimation:[self basicAnimationToValue:[NSValue valueWithCGPoint:CGPointMake(_bakFrame.origin.x + _bakFrame.size.width / 2, _bakFrame.origin.y + _bakFrame.size.height / 2)] duration:0.5 propertyName:kPOPViewCenter] forKey:@"positionAnimation"];
     
-    CABasicAnimation *scale = [CABasicAnimation animationWithKeyPath:@"bounds"];
-    scale.fromValue = [NSValue valueWithCGRect:_imageView.layer.bounds];
-    CABasicAnimation *rotate = [CABasicAnimation animationWithKeyPath:@"transform"];
-    rotate.fromValue = [NSValue valueWithCATransform3D:_imageView.layer.transform];
+    [_imageView pop_addAnimation:[self basicAnimationToValue:[NSValue valueWithCGRect:_bakFrame] duration:0.5 propertyName:kPOPViewBounds] forKey:@"boundsAnimation"];
     
-    scale.toValue = [NSValue valueWithCGRect:_bakFrame];
-    
-    rotate.toValue = [NSValue valueWithCATransform3D:CATransform3DRotate(_imageView.layer.transform, -M_PI_2, 0, 0, 1)];
-    
-    CAAnimationGroup *group = [CAAnimationGroup animation];
-    group.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-    group.duration = 0.5;
-    group.delegate = self;
-    group.animations = @[scale,rotate,center];
-    [group setValue:@"close" forKey:@"animationType"];
-    
-    _imageView.layer.position = [center.toValue CGPointValue];
-    _imageView.layer.bounds = [scale.toValue CGRectValue];
-    _imageView.layer.transform = [rotate.toValue CATransform3DValue];
-    [_imageView.layer addAnimation:group forKey:nil];
-}
-
-- (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag {
-    if ([[anim valueForKey:@"animationType"] isEqual:@"open"]) {
-        [self presentViewController:_imageViewController animated:NO completion:nil];
-    }
+    [_imageView.layer pop_addAnimation:[self basicAnimationToValue:@(0) duration:0.5 propertyName:kPOPLayerRotation] forKey:@"transformAnimation"];
 }
 
 - (NSUInteger)supportedInterfaceOrientations {
